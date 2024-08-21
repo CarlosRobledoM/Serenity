@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Grid } from '@mui/material';
+import { userContext } from '../context/authContext';
 import NavBar from './navbar';
+import Forms from './forms';
 
 export default function Layout({ children }) {
+  const { user } = useContext(userContext);
   return (
     <Grid
-      container
+      container={user ? true : false}
       sx={{
         height: '100vh',
-        width: '100%',
+        width: '100vw',
         display: 'flex',
+        alignItems: 'center',
       }}
     >
-      <NavBar />
+      {user ? <NavBar user={user} /> : <Forms />}
       {children}
     </Grid>
   );
