@@ -12,7 +12,7 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import Visualizer from './components/visualizer';
+// import Visualizer from './components/visualizer';
 import useSpeechToText from '../../hooks/useSpeechToText';
 
 export default function Home() {
