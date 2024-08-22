@@ -4,27 +4,44 @@ import {
   Button,
   Container,
   Grid,
+  IconButton,
   TextField,
-  Typography,
 } from '@mui/material';
 import { addItem } from '../../api/firebase/api';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import PauseCircleIcon from '@mui/icons-material/PauseCircle';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import Visualizer from './components/visualizer';
+import useSpeechToText from '../../hooks/useSpeechToText';
 
 export default function Home() {
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [stock, setStock] = useState('');
-  const [price, setPrice] = useState('');
+  const [transcription, setTranscription] = useState('');
+  const { isListening, transcript, startListening, stopListening } =
+    useSpeechToText({ continuous: true });
+
+  const startStopListening = () => {
+    isListening ? stopVoiceInput() : startListening();
+  };
+
+  const stopVoiceInput = () => {
+    setTranscription(
+      (prevVal) =>
+        prevVal +
+        (transcript.length ? (prevVal.length ? ' ' : '') + transcript : ''),
+    );
+    stopListening();
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
     try {
       addItem({
         name: name,
-        description: description,
-        stock: stock,
-        price: price,
+        transcription: transcription,
       });
-      alert('Producto agregado exitosamente');
+      alert('Resumen agregado exitosamente');
     } catch (error) {
       console.log(error);
     }
@@ -32,71 +49,72 @@ export default function Home() {
 
   return (
     <Container>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+      <Grid
+        container
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
+        spacing={2}
       >
-        <Typography component="h1" variant="h5">
-          Agregar producto
-        </Typography>
-        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="nombre"
-                fullWidth
-                id="nombre"
-                label="Nombre"
-                autoFocus
-                onChange={(e) => setName(e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="descripcion"
-                fullWidth
-                id="descripcion"
-                label="Descripción"
-                autoFocus
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="stock"
-                label="Stock"
-                name="stock"
-                type={'number'}
-                onChange={(e) => setStock(e.target.value)}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                id="price"
-                label="Precio"
-                name="price"
-                type={'number'}
-                onChange={(e) => setPrice(e.target.value)}
-              />
-            </Grid>
-          </Grid>
+        <Grid item xs={12}>
+          {/* <Visualizer /> */}
+        </Grid>
+        <Grid item xs={12}>
+          <IconButton
+            onClick={startStopListening}
+            disabled={isListening}
+            color="primary"
+          >
+            <PlayCircleIcon fontSize="large" />
+          </IconButton>
+          <IconButton disabled={!isListening} color="primary">
+            <PauseCircleIcon fontSize="large" />
+          </IconButton>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="Nombre"
+            type="text"
+            helperText="Escribir nombre del paciente"
+            placeholder="José Carlos"
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            multiline
+            label="Transcripción de texto"
+            type="text"
+            rows={3}
+            sx={{
+              width: 400,
+            }}
+            value={
+              isListening
+                ? transcription +
+                  (transcript.length
+                    ? (transcription.length ? ' ' : '') + transcript
+                    : '')
+                : transcription
+            }
+            onChange={(e) => {
+              setTranscription(e.target.value);
+            }}
+            disabled={true}
+          />
+        </Grid>
+        <Grid item xs={12}>
           <Button
-            type="submit"
-            fullWidth
-            id="submit"
+            onClick={handleSubmit}
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            disabled={isListening}
+            color="primary"
           >
             Agregar
+            <AddCircleIcon sx={{ ml: 1 }} />
           </Button>
-        </Box>
-      </Box>
+        </Grid>
+      </Grid>
     </Container>
   );
 }
