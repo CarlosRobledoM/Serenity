@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
 
   const singUp = (email, password) => {
     createUserWithEmailAndPassword(auth, email, password);
-    updateProfile({ displayName: 'nombre' });
+    // updateProfile({ displayName: 'nombre' });
   };
 
   const singIn = (email, password) => {
