@@ -6,14 +6,18 @@ import Layout from './layout';
 import Login from './views/login';
 import Register from './views/register';
 import Home from './views/home';
+import PreLoader from './components/PreLoader';
+import Resume from './views/resume';
+import History from './views/history';
 
 const PublicRoutes = () => (
   <Layout>
     <Routes>
-      <Route exact path="/" element={<Navigate to="/login" />} />
-      <Route path="/home" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route exact path="/" element={<Navigate to="/login" />} />
+      <Route path="/resume" element={<Navigate to="/login" />} />
+      <Route path="/history" element={<Navigate to="/login" />} />
     </Routes>
   </Layout>
 );
@@ -24,7 +28,8 @@ const PritaveRoutes = () => (
       <Route path="/login" element={<Navigate to="/" />} />
       <Route path="/register" element={<Navigate to="/" />} />
       <Route exact path="/" element={<Home />} />
-      <Route path="/history" element={<Home />} />
+      <Route path="/resume" element={<Resume />} />
+      <Route path="/history" element={<History />} />
     </Routes>
   </Layout>
 );
@@ -32,7 +37,8 @@ const PritaveRoutes = () => (
 export default function Router() {
   const { user, loading } = useContext(userContext);
 
-  if (loading) return <CircularProgress />;
+  if (loading)
+    return <PreLoader loading={loading} completed={loading ? false : true} />;
 
   if (!user) return <PublicRoutes />;
 

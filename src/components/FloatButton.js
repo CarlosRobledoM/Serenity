@@ -1,7 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Fab from '@mui/material/Fab';
-import AddIcon from '@mui/icons-material/Add';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 
 export default function FloatingActionButtonSize() {
   return (
@@ -14,7 +14,7 @@ export default function FloatingActionButtonSize() {
       }}
     >
       <Fab color="primary" aria-label="add">
-        <AddIcon />
+        <SmartToyIcon />
       </Fab>
     </Box>
   );

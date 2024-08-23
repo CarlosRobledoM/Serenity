@@ -7,7 +7,7 @@ export default function Forms() {
     <Box
       sx={{
         height: '100vh',
-        width: '100vw',
+        width: { xs: '0vw', md: '100vw' },
         backgroundImage: `url(${image})`,
         backgroundPosition: 'center',
         backgroundRepeat: 'repeat-x',

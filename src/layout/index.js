@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { Grid } from '@mui/material';
 import { userContext } from '../context/authContext';
 import NavBar from './navbar';
 import Forms from './forms';
@@ -8,18 +7,48 @@ import FloatingActionButtonSize from '../components/FloatButton';
 export default function Layout({ children }) {
   const { user } = useContext(userContext);
   return (
-    <Grid
-      container={user ? true : false}
-      sx={{
-        height: '100vh',
-        width: '100vw',
+    <div
+      style={{
         display: 'flex',
-        alignItems: 'center',
+        height: '100%',
+        overflow: 'hidden',
+        width: '100%',
       }}
     >
-      {user ? <NavBar user={user} /> : <Forms />}
-      {children}
-      <FloatingActionButtonSize />
-    </Grid>
+      {user ? <NavBar user={user} /> : null}
+      {user ? (
+        <div
+          style={{
+            display: 'flex',
+            flex: '1 1 auto',
+            overflow: 'hidden',
+            paddingTop: 64,
+          }}
+        >
+          <div
+            style={{ display: 'flex', flex: '1 1 auto', overflow: 'hidden' }}
+          >
+            <div style={{ flex: '1 1 auto', height: '100%', overflow: 'auto' }}>
+              {children}
+              <FloatingActionButtonSize />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            width: '100%',
+          }}
+        >
+          <Forms />
+          {children}
+          <FloatingActionButtonSize />
+        </div>
+      )}
+    </div>
   );
 }

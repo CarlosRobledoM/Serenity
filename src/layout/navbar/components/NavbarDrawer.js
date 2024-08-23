@@ -10,10 +10,55 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import LogoutIcon from '@mui/icons-material/Logout';
+import HomeIcon from '@mui/icons-material/Home';
+import HistoryIcon from '@mui/icons-material/History';
 import { userContext } from '../../../context/authContext';
+import { useNavigate } from 'react-router-dom';
+import { getItems } from '../../../api/firebase/api';
+
+//-----------------------------------------------------------
 
 export default function NavbarDrawer({ open, setOpen }) {
-  const { logOut } = useContext(userContext);
+  const { user, logOut } = useContext(userContext);
+  const navigate = useNavigate();
+
+  const obtainItem = async () => {
+    const response = await getItems(user.email);
+    navigate('/resume', { state: { itemData: response[0] } });
+    setOpen(false);
+  };
+
+  const options = [
+    {
+      text: 'Home',
+      icon: <HomeIcon />,
+      action: () => {
+        navigate('/');
+        setOpen(false);
+      },
+    },
+    {
+      text: 'Ultima consulta',
+      icon: <InboxIcon />,
+      action: obtainItem,
+    },
+    {
+      text: 'Historial',
+      icon: <HistoryIcon />,
+      action: () => {
+        navigate('/history');
+        setOpen(false);
+      },
+    },
+    {
+      text: 'Contacto',
+      icon: <MailIcon />,
+      action: () => {
+        setOpen(false);
+      },
+    },
+  ];
+
   const handleLogout = async () => {
     try {
       await logOut();
@@ -26,26 +71,11 @@ export default function NavbarDrawer({ open, setOpen }) {
   const DrawerList = (
     <Box sx={{ width: 250 }} role="presentation">
       <List>
-        {['Home', 'Ultima consulta'].map((text, index) => (
-          <ListItem key={text} disablePadding>
+        {options.map((option) => (
+          <ListItem key={option.text} disablePadding onClick={option.action}>
             <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['Historial', 'Contacto'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemIcon>{option.icon}</ListItemIcon>
+              <ListItemText primary={option.text} />
             </ListItemButton>
           </ListItem>
         ))}
