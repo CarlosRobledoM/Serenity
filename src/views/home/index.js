@@ -6,77 +6,88 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 // import Visualizer from './components/visualizer';
-import useSpeechToText from '../../hooks/useSpeechToText';
 import PreLoader from '../../components/PreLoader';
 import { userContext } from '../../context/authContext';
 import LastResume from '../../components/LastResume';
+import AWS from '../../middleware';
+import useRecordAudio from '../../hooks/useRecordAudio';
 
 export default function Home() {
   const [name, setName] = useState('');
+  const { getIAText, startTranscript, getTranscript } = AWS;
   const { user } = useContext(userContext);
-  const [transcription, setTranscription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleted, setIsCompleted] = useState(true);
-  const { isListening, transcript, startListening, stopListening } =
-    useSpeechToText({ continuous: true });
+  const { isRecording, startRecording, stopRecording, downloadRecording } =
+    useRecordAudio();
 
-  const startStopListening = () => {
-    isListening ? stopVoiceInput() : startListening();
+  const startStopRecording = () => {
+    isRecording ? stopRecording() : startRecording();
   };
 
-  const stopVoiceInput = () => {
-    setTranscription(
-      (prevVal) =>
-        prevVal +
-        (transcript.length ? (prevVal.length ? ' ' : '') + transcript : ''),
-    );
-    stopListening();
+  const sleep = (ms) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setIsCompleted(false);
+  const handleSubmit = async () => {
     setIsLoading(true);
+    setIsCompleted(false);
+    const fileName = `${user.email.split('@')[0]}-${name.replace(' ', '_')}`;
     try {
-      addItem(user.email, {
-        name: name,
-        transcription: transcription,
-        date: new Date(),
-      });
-      setName('');
-      setTranscription('');
+      await downloadRecording(fileName);
+      const transcriptJob = await startTranscript({ audioName: fileName });
+      if (transcriptJob.status === 'IN_PROGRESS') {
+        await sleep(5000);
+        const updateStatus = await getTranscript({ audioName: fileName });
+        if (updateStatus.status === 'COMPLETED') {
+          const textIA = await getIAText({ audioName: fileName });
+          addItem(user.email, {
+            name: name,
+            transcription: textIA?.transcription,
+            resume: textIA?.resume[0]?.text,
+            date: new Date(),
+          });
+        } else {
+          addItem(user.email, {
+            name: name,
+            transcription: 'La IA está analizando tú información...',
+            resume: 'La IA está analizando tú información...',
+            date: new Date(),
+          });
+        }
+      } else {
+        console.log('no se creo la solicitud de transcripción');
+      }
       setIsLoading(false);
     } catch (error) {
       console.log(error);
     }
+    setName('');
     setIsCompleted(true);
   };
 
   return (
-    <>
-      {isCompleted ? (
-        <Container>
-          <Grid
-            container
-            direction="column"
-            justifyContent="center"
-            alignItems="center"
-            spacing={2}
-          >
-            <Grid item xs={12}>
-              {/* <Visualizer /> */}
-            </Grid>
+    <Container>
+      <Grid
+        container
+        direction="column"
+        justifyContent="center"
+        alignItems="center"
+        spacing={2}
+      >
+        {isCompleted ? (
+          <>
             <Grid item xs={12}>
               <IconButton
-                onClick={startStopListening}
-                disabled={isListening}
+                onClick={startStopRecording}
+                disabled={isRecording}
                 color="primary"
               >
                 <PlayCircleIcon fontSize="large" />
               </IconButton>
               <IconButton
-                onClick={startStopListening}
-                disabled={!isListening}
+                onClick={startStopRecording}
+                disabled={!isRecording}
                 color="primary"
               >
                 <StopCircleIcon fontSize="large" />
@@ -93,45 +104,22 @@ export default function Home() {
               />
             </Grid>
             <Grid item xs={12}>
-              <TextField
-                multiline
-                label="Transcripción de texto"
-                type="text"
-                rows={3}
-                sx={{
-                  width: 400,
-                }}
-                value={
-                  isListening
-                    ? transcription +
-                      (transcript.length
-                        ? (transcription.length ? ' ' : '') + transcript
-                        : '')
-                    : transcription
-                }
-                onChange={(e) => {
-                  setTranscription(e.target.value);
-                }}
-                disabled={true}
-              />
-            </Grid>
-            <Grid item xs={12}>
               <Button
                 onClick={handleSubmit}
                 variant="contained"
-                disabled={isListening}
+                disabled={isRecording}
                 color="primary"
               >
                 Agregar
                 <AddCircleIcon sx={{ ml: 1 }} />
               </Button>
             </Grid>
-          </Grid>
-          <LastResume />
-        </Container>
-      ) : (
-        <PreLoader loading={isLoading} completed={isCompleted} />
-      )}
-    </>
+            <LastResume />
+          </>
+        ) : (
+          <PreLoader loading={isLoading} completed={isCompleted} />
+        )}
+      </Grid>
+    </Container>
   );
 }
