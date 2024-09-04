@@ -6,6 +6,7 @@ export default function Resume() {
   const location = useLocation();
   const { itemData } = location.state;
   const theme = useTheme();
+
   return (
     <Container>
       <Grid
@@ -15,7 +16,19 @@ export default function Resume() {
         alignItems="center"
       >
         <Typography variant="h3">{itemData?.name}</Typography>
-        <Typography variant="h4">Grabación de sesión</Typography>
+        <Box
+          sx={{
+            borderRadius: 5,
+            boxShadow: `0px 0px 10px ${theme.palette.primary.main}`,
+            p: theme.spacing(2, 4),
+            my: 4,
+          }}
+        >
+          <td
+            dangerouslySetInnerHTML={{ __html: itemData?.resume.toString() }}
+          />
+        </Box>
+        {/* <Typography variant="h4">Grabación de sesión</Typography>
         <Box
           sx={{
             borderRadius: 5,
@@ -25,17 +38,6 @@ export default function Resume() {
           }}
         >
           <Typography>{itemData?.transcription}</Typography>
-        </Box>
-        <Typography variant="h4">Resumen de grabación</Typography>
-        <Box
-          sx={{
-            borderRadius: 5,
-            boxShadow: `0px 0px 10px ${theme.palette.primary.main}`,
-            p: theme.spacing(2, 4),
-            my: 4,
-          }}
-        >
-          <Typography>{itemData?.resume}</Typography>
         </Box>
         <Typography variant="h4">Recomendación generada</Typography>
         <Box
@@ -47,7 +49,7 @@ export default function Resume() {
           }}
         >
           <Typography>{itemData?.recommendation}</Typography>
-        </Box>
+        </Box> */}
       </Grid>
     </Container>
   );
