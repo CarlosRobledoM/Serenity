@@ -9,6 +9,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { auth } from '../api/firebase/firebase';
+import { addUser, getUsers } from '../api/firebase/api';
 
 //----------------------------------------------------------
 
@@ -18,18 +19,38 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const singUp = (email, password) => {
-    createUserWithEmailAndPassword(auth, email, password);
-    // updateProfile({ displayName: 'nombre' });
+  const searchUser = async (auth) => {
+    const users = await getUsers();
+    users.filter(async (user) =>
+      user.email === auth.currentUser.email
+        ? null
+        : await addUser(auth.currentUser.uid, {
+            name: auth.currentUser.displayName,
+            email: auth.currentUser.uid,
+            date: new Date(),
+          }),
+    );
+  };
+
+  const singUp = async (email, password, name) => {
+    await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(auth.currentUser, { displayName: name });
+    await addUser(auth.currentUser.uid, {
+      name: name,
+      email: email,
+      date: new Date(),
+    });
   };
 
   const singIn = (email, password) => {
     signInWithEmailAndPassword(auth, email, password);
   };
 
-  const logInGoogle = () => {
+  const logInGoogle = async () => {
     const googleProvider = new GoogleAuthProvider();
-    return signInWithPopup(auth, googleProvider);
+    const response = await signInWithPopup(auth, googleProvider);
+    await searchUser(auth);
+    return response;
   };
 
   const logOut = () => signOut(auth);

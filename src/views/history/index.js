@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { userContext } from '../../context/authContext';
-import { getItems } from '../../api/firebase/api';
+import { getSessions } from '../../api/firebase/api';
 
 export default function History() {
   const theme = useTheme();
@@ -22,7 +22,7 @@ export default function History() {
   }, []);
 
   const obtainItem = async () => {
-    const response = await getItems(user.email);
+    const response = await getSessions(user.uid);
     setItems(response);
   };
 
@@ -32,7 +32,7 @@ export default function History() {
         <Grid container spacing={4}>
           {items ? (
             items.map((item) => (
-              <Grid item xs={12} sm={6}>
+              <Grid item key={item?.name} xs={12} sm={6}>
                 <Box
                   sx={{
                     borderRadius: 5,

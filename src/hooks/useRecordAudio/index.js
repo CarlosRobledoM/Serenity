@@ -1,100 +1,69 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
-import MicrophonePlugin from 'wavesurfer.js';
+import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
 import AWS from '../../middleware';
+import { useTheme } from '@mui/material';
 
-const useRecordAudio = () => {
-  const waveformRef = useRef(null);
-  const wavesurfer = useRef(null);
-  const mediaRecorder = useRef(null);
-  const { uploadAudio } = AWS;
+export const useRecordAudio = () => {
   const [isRecording, setIsRecording] = useState(false);
-  const [isFinish, setIsFinish] = useState(true);
   const [recordedBlob, setRecordedBlob] = useState(null);
-
-  const initializeWaveSurferWithMicrophone = () => {
-    if (waveformRef.current) {
-      wavesurfer.current = WaveSurfer.create({
-        container: waveformRef.current,
-        height: 200,
-        responsive: true,
-        plugins: [MicrophonePlugin.create({})],
-        progressColor: '#4a74a5',
-        waveColor: '#ccc',
-        cursorColor: '#4a74a5',
-      });
-    }
-  };
-
-  const startRecording = () => {
-    setIsRecording(true);
-    setRecordedBlob(new Blob([]));
-    if (waveformRef.current) {
-      waveformRef.current.innerHTML = '';
-    }
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        mediaRecorder.current = new MediaRecorder(stream);
-        const chunks = [];
-
-        mediaRecorder.current.addEventListener('dataavailable', (event) => {
-          chunks.push(event.data);
-        });
-
-        mediaRecorder.current.addEventListener('stop', () => {
-          const recordedBlobUpdate = new Blob(chunks, { type: 'audio/mp3' });
-          setRecordedBlob(recordedBlobUpdate);
-        });
-
-        mediaRecorder.current.start();
-        initializeWaveSurferWithMicrophone();
-        if (wavesurfer.current) {
-          wavesurfer.current?.microphone.start();
-        }
-      })
-      .catch((error) => {
-        console.error('Error accessing microphone:', error);
-      });
-  };
-
-  const stopRecording = () => {
-    setIsRecording(false);
-    mediaRecorder.current?.stop();
-    wavesurfer.current?.microphone.stop();
-  };
-
-  const playRecording = () => {
-    if (recordedBlob && wavesurfer.current) {
-      const audioUrl = URL.createObjectURL(recordedBlob);
-      wavesurfer.current.load(audioUrl);
-      wavesurfer.current.on('ready', () => {
-        setIsFinish(false);
-        wavesurfer.current?.play();
-      });
-      wavesurfer.current.on('finish', () => {
-        setIsFinish(true);
-      });
-    }
-  };
+  const mediaRecorder = useRef(null);
+  const containerRef = useRef();
+  const waveformRef = useRef();
+  const { uploadAudio } = AWS;
+  const theme = useTheme();
 
   useEffect(() => {
-    if (wavesurfer.current && recordedBlob) {
-      const audioUrl = URL.createObjectURL(recordedBlob);
-      wavesurfer.current.load(audioUrl);
-    }
-  }, [recordedBlob]);
+    createWaveSurfer();
+  }, []);
 
-  const StopPlayRecording = () => {
-    if (recordedBlob && wavesurfer.current) {
-      const audioUrl = URL.createObjectURL(recordedBlob);
-      wavesurfer.current.load(audioUrl);
-      wavesurfer.current.on('ready', () => {
-        wavesurfer.current?.stop();
-      });
+  // VIEW OF SOUND
+  const createWaveSurfer = () => {
+    if (waveformRef.current) {
+      waveformRef.current.destroy();
+    }
+    waveformRef.current = WaveSurfer.create({
+      container: containerRef.current, //ID DEL HTML CONTENEDOR
+      waveColor: theme.palette.primary.light,
+      progressColor: theme.palette.primary.dark,
+    });
+    mediaRecorder.current = waveformRef.current.registerPlugin(
+      RecordPlugin.create({ renderRecordedAudio: false }),
+    );
+    mediaRecorder.current.on('record-end', (blob) => {
+      setRecordedBlob(blob);
+    });
+  };
+
+  // SELECT AND USE MICROPHONE
+  const SelectMic = async () => {
+    const micOptions = await RecordPlugin.getAvailableAudioDevices();
+    console.log('Microfonos:', micOptions[0].deviceId);
+    return micOptions[0].deviceId;
+  };
+
+  // START RECORD
+  const startRecording = async () => {
+    setIsRecording(true);
+    setRecordedBlob(new Blob([]));
+    const deviceId = await SelectMic();
+    createWaveSurfer();
+    mediaRecorder.current.startRecording({ deviceId });
+  };
+
+  // STOP RECORD
+  const stopRecording = () => {
+    if (
+      mediaRecorder.current.isRecording() ||
+      mediaRecorder.current.isPaused()
+    ) {
+      mediaRecorder.current.stopRecording();
+      setIsRecording(false);
+      return;
     }
   };
 
+  // DOWNLOAD SOUND
   const downloadRecording = async (fileName) => {
     if (recordedBlob) {
       // const downloadLink = document.createElement('a');
@@ -105,23 +74,40 @@ const useRecordAudio = () => {
       const file = new File([recordedBlob], `${fileName}.mp3`, {
         type: 'audio/mp3',
       });
-      formData.append('data', 'hola');
       formData.append('file', file, `${fileName}.mp3`);
       const response = await uploadAudio(formData);
-      console.log('upload: ', response);
+      return response;
     }
+  };
+
+  // PAUSE AND CONTINUE SOUND
+  const PlayPauseRecording = () => {
+    if (mediaRecorder.current.isPaused()) {
+      mediaRecorder.current.resumeRecording();
+      setIsRecording(true);
+      return;
+    }
+    mediaRecorder.current.pauseRecording();
+    setIsRecording(false);
+  };
+
+  //TIEMPO DE GRABACIÓN
+  const updateProgress = (time) => {
+    const formattedTime = [
+      Math.floor((time % 3600000) / 60000), // minutes
+      Math.floor((time % 60000) / 1000), // seconds
+    ]
+      .map((v) => (v < 10 ? '0' + v : v))
+      .join(':');
   };
 
   return {
     isRecording,
-    isFinish,
-    recordedBlob,
-    StopPlayRecording,
     downloadRecording,
-    playRecording,
     stopRecording,
     startRecording,
+    containerRef,
+    recordedBlob,
+    createWaveSurfer,
   };
 };
-
-export default useRecordAudio;

@@ -20,13 +20,18 @@ export default function Resume() {
           sx={{
             borderRadius: 5,
             boxShadow: `0px 0px 10px ${theme.palette.primary.main}`,
-            p: theme.spacing(2, 4),
-            my: 4,
+            p: theme.spacing(4, 6),
+            my: 2,
           }}
         >
-          <td
-            dangerouslySetInnerHTML={{ __html: itemData?.resume.toString() }}
-          />
+          {itemData?.resume.toString() ===
+          'La IA está analizando tú información...' ? (
+            <Typography>{itemData?.resume}</Typography>
+          ) : (
+            <td
+              dangerouslySetInnerHTML={{ __html: itemData?.resume.toString() }}
+            />
+          )}
         </Box>
         {/* <Typography variant="h4">Grabación de sesión</Typography>
         <Box

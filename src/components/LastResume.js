@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getItems } from '../api/firebase/api';
+import { getSessions } from '../api/firebase/api';
 import { userContext } from '../context/authContext';
 import { Box, Divider, Typography, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -15,17 +15,11 @@ const LastResume = () => {
   }, []);
 
   const obtainItem = async () => {
-    const response = await getItems(user.email);
-    // response.find((data) => data?.date?.seconds < data?.date?.seconds),
-    setItem(response[0]);
-    // console.log(
-    //   'Datos:',
-    //   response.find((i, data) =>
-    //     data?.date?.seconds > response[0].date?.seconds
-    //       ? response[i]
-    //       : response[0],
-    //   ),
-    // );
+    const response = await getSessions(user.uid);
+    const lastResume = response.reduce((previous, current) => {
+      return current.date.seconds > previous.date.seconds ? current : previous;
+    });
+    setItem(lastResume);
   };
 
   return (

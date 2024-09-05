@@ -1,6 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { Button, Container, Grid, IconButton, TextField } from '@mui/material';
-import { addItem } from '../../api/firebase/api';
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  IconButton,
+  TextField,
+  useTheme,
+} from '@mui/material';
+import { addSession } from '../../api/firebase/api';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 // import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
@@ -10,54 +18,57 @@ import PreLoader from '../../components/PreLoader';
 import { userContext } from '../../context/authContext';
 import LastResume from '../../components/LastResume';
 import AWS from '../../middleware';
-import useRecordAudio from '../../hooks/useRecordAudio';
+import { useRecordAudio } from '../../hooks/useRecordAudio';
 
 export default function Home() {
   const [name, setName] = useState('');
-  const { getIAText, startTranscript, getTranscript } = AWS;
+  const { startTranscript } = AWS;
+  const theme = useTheme();
   const { user } = useContext(userContext);
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleted, setIsCompleted] = useState(true);
-  const { isRecording, startRecording, stopRecording, downloadRecording } =
-    useRecordAudio();
+  const {
+    isRecording,
+    startRecording,
+    stopRecording,
+    downloadRecording,
+    containerRef,
+    recordedBlob,
+  } = useRecordAudio();
 
-  const startStopRecording = () => {
-    isRecording ? stopRecording() : startRecording();
-  };
-
-  const sleep = (ms) => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  const startStopRecording = async () => {
+    isRecording ? stopRecording() : await startRecording();
   };
 
   const handleSubmit = async () => {
     setIsLoading(true);
     setIsCompleted(false);
-    const fileName = `${user.email.split('@')[0]}-${name.replace(' ', '_')}`;
+
+    const idSession = await addSession(user.uid, {
+      name: name,
+      transcription: 'La IA está analizando tú información...',
+      resume: 'La IA está analizando tú información...',
+      date: new Date(),
+    });
+
+    const fileName = `${user.uid}-${idSession}`;
+    const formData = new FormData();
+    const dto_object = new Blob(
+      [
+        JSON.stringify({
+          audioName: fileName,
+          user: user.email,
+        }),
+      ],
+      {
+        type: 'application/json',
+      },
+    );
+    formData.append('data', dto_object);
+
     try {
       await downloadRecording(fileName);
-      const transcriptJob = await startTranscript({ audioName: fileName });
-      if (transcriptJob.status === 'IN_PROGRESS') {
-        await sleep(5000);
-        const updateStatus = await getTranscript({ audioName: fileName });
-        if (updateStatus.status === 'COMPLETED') {
-          const textIA = await getIAText({ audioName: fileName });
-          addItem(user.email, {
-            name: name,
-            transcription: textIA?.transcription,
-            resume: textIA?.resume[0]?.text,
-            date: new Date(),
-          });
-        } else {
-          addItem(user.email, {
-            name: name,
-            transcription: 'La IA está analizando tú información...',
-            resume: 'La IA está analizando tú información...',
-            date: new Date(),
-          });
-        }
-      } else {
-        console.log('no se creo la solicitud de transcripción');
-      }
+      await startTranscript(formData);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
@@ -67,7 +78,15 @@ export default function Home() {
   };
 
   return (
-    <Container>
+    <Container
+      sx={{
+        height: '100%',
+        width: '100vw',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Grid
         container
         direction="column"
@@ -77,6 +96,26 @@ export default function Home() {
       >
         {isCompleted ? (
           <>
+            <Grid item xs={12}>
+              <Box
+                style={{
+                  width: 250,
+                  border: `2px solid ${theme.palette.primary.main}`,
+                  borderRadius: 20,
+                }}
+                ref={containerRef}
+              ></Box>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Nombre"
+                type="text"
+                helperText="Escribir nombre del paciente"
+                placeholder="José Carlos"
+                onChange={(e) => setName(e.target.value)}
+                value={name.length ? name : ''}
+              />
+            </Grid>
             <Grid item xs={12}>
               <IconButton
                 onClick={startStopRecording}
@@ -92,25 +131,15 @@ export default function Home() {
               >
                 <StopCircleIcon fontSize="large" />
               </IconButton>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                label="Nombre"
-                type="text"
-                helperText="Escribir nombre del paciente"
-                placeholder="José Carlos"
-                onChange={(e) => setName(e.target.value)}
-                value={name.length ? name : ''}
-              />
-            </Grid>
-            <Grid item xs={12}>
               <Button
                 onClick={handleSubmit}
                 variant="contained"
-                disabled={isRecording}
+                disabled={
+                  isRecording || name.length == 0 || recordedBlob == null
+                }
                 color="primary"
               >
-                Agregar
+                Analizar
                 <AddCircleIcon sx={{ ml: 1 }} />
               </Button>
             </Grid>

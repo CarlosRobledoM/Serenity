@@ -14,7 +14,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import HistoryIcon from '@mui/icons-material/History';
 import { userContext } from '../../../context/authContext';
 import { useNavigate } from 'react-router-dom';
-import { getItems } from '../../../api/firebase/api';
+import { getSessions } from '../../../api/firebase/api';
 
 //-----------------------------------------------------------
 
@@ -23,8 +23,11 @@ export default function NavbarDrawer({ open, setOpen }) {
   const navigate = useNavigate();
 
   const obtainItem = async () => {
-    const response = await getItems(user.email);
-    navigate('/resume', { state: { itemData: response[0] } });
+    const response = await getSessions(user.uid);
+    const lastResume = response.reduce((previous, current) => {
+      return current.date.seconds > previous.date.seconds ? current : previous;
+    });
+    navigate('/resume', { state: { itemData: lastResume } });
     setOpen(false);
   };
 

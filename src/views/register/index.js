@@ -16,13 +16,14 @@ export default function Register() {
   const { singUp } = useContext(userContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [confirm, setCofirm] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
       if (password === confirm) {
-        await singUp(email, password);
+        await singUp(email, password, name);
         navigate('/login');
       } else {
         alert('Las contraseñas no coinciden');
@@ -52,6 +53,16 @@ export default function Register() {
           sx={{ mt: 3, width: 350 }}
         >
           <Grid container spacing={2}>
+            <Grid item xs={12} sm={12}>
+              <TextField
+                name="name"
+                fullWidth
+                id="name"
+                label="Nombre completo"
+                autoFocus
+                onChange={(e) => setName(e.target.value)}
+              />
+            </Grid>
             <Grid item xs={12} sm={12}>
               <TextField
                 name="email"
