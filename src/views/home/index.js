@@ -7,6 +7,8 @@ import {
   IconButton,
   TextField,
   useTheme,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { addSession } from '../../api/firebase/api';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -22,6 +24,7 @@ import { useRecordAudio } from '../../hooks/useRecordAudio';
 
 export default function Home() {
   const [name, setName] = useState('');
+  const [about, setAbout] = useState('');
   const { startTranscript } = AWS;
   const theme = useTheme();
   const { user } = useContext(userContext);
@@ -36,8 +39,21 @@ export default function Home() {
     recordedBlob,
   } = useRecordAudio();
 
+  const aboutOptions = [
+    'Terapia cognitivo conductual',
+    'Psicoanálisis',
+    'Humanista',
+    'Terapia conductual dialéctica',
+    'Terapia Gestal',
+    'Terapia de aceptación y compromiso',
+  ];
+
   const startStopRecording = async () => {
     isRecording ? stopRecording() : await startRecording();
+  };
+
+  const handleChangeAbout = (event) => {
+    setAbout(event.target.value);
   };
 
   const handleSubmit = async () => {
@@ -48,6 +64,7 @@ export default function Home() {
       name: name,
       transcription: 'La IA está analizando tú información...',
       resume: 'La IA está analizando tú información...',
+      focus: about,
       date: new Date(),
     });
 
@@ -107,8 +124,30 @@ export default function Home() {
               ></Box>
             </Grid>
             <Grid item xs={12}>
+              <Select
+                size="small"
+                id="bank"
+                value={about ? about : 'default'}
+                onChange={handleChangeAbout}
+                input={<TextField label="Enfoque" fullWidth select={true} />}
+              >
+                <MenuItem autoFocus disabled value="default">
+                  Seleccione un enfoque
+                </MenuItem>
+                {aboutOptions.length
+                  ? aboutOptions.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))
+                  : null}
+              </Select>
+            </Grid>
+            <Grid item xs={12}>
               <TextField
+                size="small"
                 label="Nombre"
+                fullWidth
                 type="text"
                 helperText="Escribir nombre del paciente"
                 placeholder="José Carlos"
