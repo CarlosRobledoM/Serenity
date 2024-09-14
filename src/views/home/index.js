@@ -25,7 +25,7 @@ import { useRecordAudio } from '../../hooks/useRecordAudio';
 export default function Home() {
   const [name, setName] = useState('');
   const [about, setAbout] = useState('');
-  const { startTranscript } = AWS;
+  const { startTranscript, uploadAudio } = AWS;
   const theme = useTheme();
   const { user } = useContext(userContext);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,7 +84,8 @@ export default function Home() {
     formData.append('data', dto_object);
 
     try {
-      await downloadRecording(fileName);
+      const response = await uploadAudio(formData);
+      await downloadRecording(response.preSignedUrl, fileName);
       await startTranscript(formData);
       setIsLoading(false);
     } catch (error) {

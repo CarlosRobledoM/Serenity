@@ -3,6 +3,7 @@ import WaveSurfer from 'wavesurfer.js';
 import RecordPlugin from 'wavesurfer.js/dist/plugins/record.esm.js';
 import AWS from '../../middleware';
 import { useTheme } from '@mui/material';
+import axios from 'axios';
 
 export const useRecordAudio = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -64,7 +65,7 @@ export const useRecordAudio = () => {
   };
 
   // DOWNLOAD SOUND
-  const downloadRecording = async (fileName) => {
+  const downloadRecording = async (url, fileName) => {
     if (recordedBlob) {
       // const downloadLink = document.createElement('a');
       // downloadLink.href = URL.createObjectURL(recordedBlob);
@@ -72,10 +73,15 @@ export const useRecordAudio = () => {
       // downloadLink.click();
       const formData = new FormData();
       const file = new File([recordedBlob], `${fileName}.mp3`, {
-        type: 'audio/mp3',
+        type: 'audio/mpeg',
       });
+      formData.append('key', `${fileName}.mp3`);
       formData.append('file', file, `${fileName}.mp3`);
-      const response = await uploadAudio(formData);
+      const response = await axios.put(url, file, {
+        headers: {
+          'Content-Type': 'audio/mpeg',
+        },
+      });
       return response;
     }
   };
