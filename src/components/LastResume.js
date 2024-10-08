@@ -31,7 +31,7 @@ const LastResume = () => {
             position: 'absolute',
             bottom: 16,
             left: 16,
-            height: 150,
+            maxHeight: 150,
             width: 400,
             borderRadius: 5,
             boxShadow: `0px 0px 10px ${theme.palette.primary.main}`,
@@ -49,7 +49,9 @@ const LastResume = () => {
           <Divider sx={{ background: theme.palette.secondary.main }} />
           <Box>
             <Typography variant="body2" mx={2} align="justify">
-              {item?.resume?.substring(0, 200) + '...'}
+              {item?.resume === 'La IA está analizando aquí...'
+                ? item?.resume.toString()
+                : 'Tu información ya está lista! Da click aqui para validar las notas de la sesión'}
             </Typography>
           </Box>
         </Box>

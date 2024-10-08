@@ -54,7 +54,12 @@ export default function History() {
                   <Divider sx={{ background: theme.palette.secondary.main }} />
                   <Box>
                     <Typography variant="body2" mx={2} align="justify">
-                      {item?.resume?.substring(0, 200) + '...'}
+                      <td
+                        dangerouslySetInnerHTML={{
+                          __html: item?.resume.substring(0, 200),
+                        }}
+                      />
+                      {/* {item?.resume?.substring(0, 200) + '...'} */}
                     </Typography>
                   </Box>
                 </Box>
