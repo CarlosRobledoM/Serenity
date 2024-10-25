@@ -49,7 +49,7 @@ export default function Home() {
     'Psicología Positiva',
     'Terapias Basadas en la Compasión',
     'Terapia Sistémica y Relacional',
-    'Psicología Transpersonal'
+    'Psicología Transpersonal',
   ];
 
   const startStopRecording = async () => {
