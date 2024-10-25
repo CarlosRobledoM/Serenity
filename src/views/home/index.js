@@ -46,6 +46,10 @@ export default function Home() {
     'Terapia conductual dialéctica',
     'Terapia Gestal',
     'Terapia de aceptación y compromiso',
+    'Psicología Positiva',
+    'Terapias Basadas en la Compasión',
+    'Terapia Sistémica y Relacional',
+    'Psicología Transpersonal'
   ];
 
   const startStopRecording = async () => {
