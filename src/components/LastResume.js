@@ -1,25 +1,47 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getSessions } from '../api/firebase/api';
+// import { getSessions } from '../api/firebase/api';
 import { userContext } from '../context/authContext';
 import { Box, Divider, Typography, useTheme } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import AWS from '../middleware';
 
 const LastResume = () => {
   const [item, setItem] = useState();
   const { user } = useContext(userContext);
   const theme = useTheme();
   const navigate = useNavigate();
+  const { getSessions } = AWS;
 
   useEffect(() => {
     obtainItem();
   }, []);
 
   const obtainItem = async () => {
-    const response = await getSessions(user.uid);
-    const lastResume = response.reduce((previous, current) => {
-      return current.date.seconds > previous.date.seconds ? current : previous;
-    });
-    setItem(lastResume);
+    try {
+      const formData = new FormData();
+      const dto_object = new Blob(
+        [
+          JSON.stringify({
+            userID: user.uid,
+          }),
+        ],
+        {
+          type: 'application/json',
+        },
+      );
+      formData.append('data', dto_object);
+      const response = await getSessions(formData).catch(function (error) {
+        console.log(error.toJSON());
+      });
+      const lastResume = response.reduce((previous, current) => {
+        return current.date.seconds > previous.date.seconds
+          ? current
+          : previous;
+      });
+      setItem(lastResume);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

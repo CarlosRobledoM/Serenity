@@ -9,21 +9,41 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { userContext } from '../../context/authContext';
-import { getSessions } from '../../api/firebase/api';
+// import { getSessions } from '../../api/firebase/api';
+import AWS from '../../middleware';
 
 export default function History() {
   const theme = useTheme();
   const [items, setItems] = useState();
   const { user } = useContext(userContext);
   const navigate = useNavigate();
+  const { getSessions } = AWS;
 
   useEffect(() => {
     obtainItem();
   }, []);
 
   const obtainItem = async () => {
-    const response = await getSessions(user.uid);
-    setItems(response);
+    try {
+      const formData = new FormData();
+      const dto_object = new Blob(
+        [
+          JSON.stringify({
+            userID: user.uid,
+          }),
+        ],
+        {
+          type: 'application/json',
+        },
+      );
+      formData.append('data', dto_object);
+      const response = await getSessions(formData).catch(function (error) {
+        console.log(error.toJSON());
+      });
+      setItems(response);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
