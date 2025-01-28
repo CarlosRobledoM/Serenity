@@ -43,7 +43,7 @@ export default function Home() {
     'Terapia cognitivo conductual',
     'Psicoanálisis',
     'Humanista',
-    'Terapia conductual dialéctica',
+    'Terapia dialéctica conductual',
     'Terapia Gestal',
     'Terapia de aceptación y compromiso',
     'Psicología Positiva',
