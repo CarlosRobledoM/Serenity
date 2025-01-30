@@ -15,6 +15,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import { userContext } from '../../../context/authContext';
 import { useNavigate } from 'react-router-dom';
 import { getSessions } from '../../../api/firebase/api';
+import InfoIcon from '@mui/icons-material/Info';
 
 //-----------------------------------------------------------
 
@@ -40,11 +41,11 @@ export default function NavbarDrawer({ open, setOpen }) {
         setOpen(false);
       },
     },
-    {
-      text: 'Ultima consulta',
-      icon: <InboxIcon />,
-      action: obtainItem,
-    },
+    // {
+    //   text: 'Ultima consulta',
+    //   icon: <InboxIcon />,
+    //   action: obtainItem,
+    // },
     {
       text: 'Historial',
       icon: <HistoryIcon />,
@@ -57,6 +58,15 @@ export default function NavbarDrawer({ open, setOpen }) {
       text: 'Contacto',
       icon: <MailIcon />,
       action: () => {
+        window.open('https://api.whatsapp.com/send/?phone=573183975258');
+        setOpen(false);
+      },
+    },
+    {
+      text: 'Instrucciones',
+      icon: <InfoIcon />,
+      action: () => {
+        window.open('https://home.serenityapp.co/instrucciones-demo');
         setOpen(false);
       },
     },

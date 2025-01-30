@@ -11,6 +11,8 @@ import React, { useContext, useState } from 'react';
 import { userContext } from '../../context/authContext';
 import { useNavigate } from 'react-router-dom';
 import GoogleIcon from '@mui/icons-material/Google';
+import InfoIcon from '@mui/icons-material/Info';
+import logo from '../../assets/LOGO.png';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -45,10 +47,24 @@ export default function Login() {
           justifyContent: 'center',
         }}
       >
-        <Typography component="h1" variant="h5">
+        <Box component="img" src={logo} sx={{ mb: 3 }} alt="LOGO" height={50} />
+        <Typography color="primary" component="h1" variant="h5">
           Ingresar
         </Typography>
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Button
+            fullWidth
+            id="google"
+            variant="outlined"
+            color="info"
+            onClick={() =>
+              window.open('https://home.serenityapp.co/instrucciones-demo')
+            }
+            sx={{ mb: 3, textTransform: 'none' }}
+          >
+            <InfoIcon sx={{ mr: 1 }} />
+            Instrucciones de uso
+          </Button>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -80,6 +96,17 @@ export default function Login() {
           >
             Ingresar
           </Button>
+          <Button
+            fullWidth
+            id="google"
+            variant="outlined"
+            color="info"
+            onClick={handleGoogleSingIn}
+            sx={{ mb: 3 }}
+          >
+            <GoogleIcon sx={{ mr: 1 }} />
+            Ingresar con Google
+          </Button>
           <Box
             sx={{
               display: 'flex',
@@ -92,24 +119,13 @@ export default function Login() {
             >
               Registrar
             </Link>
-            <Link
+            {/* <Link
               sx={{ ':hover': { cursor: 'pointer' } }}
               onClick={() => navigate('/')}
             >
               Olvide mi contraseña
-            </Link>
+            </Link> */}
           </Box>
-          <Button
-            fullWidth
-            id="google"
-            variant="outlined"
-            color="info"
-            onClick={handleGoogleSingIn}
-            sx={{ mt: 3 }}
-          >
-            <GoogleIcon sx={{ mr: 1 }} />
-            Ingresar con Google
-          </Button>
         </Box>
       </Box>
     </Container>

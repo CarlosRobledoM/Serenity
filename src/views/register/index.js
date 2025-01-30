@@ -10,6 +10,7 @@ import {
 import React, { useContext, useState } from 'react';
 import { userContext } from '../../context/authContext';
 import { useNavigate } from 'react-router-dom';
+import logo from '../../assets/LOGO.png';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -43,7 +44,8 @@ export default function Register() {
           justifyContent: 'center',
         }}
       >
-        <Typography component="h1" variant="h5">
+        <Box component="img" src={logo} sx={{ mb: 3 }} alt="LOGO" height={50} />
+        <Typography color="primary" component="h1" variant="h5">
           Registrar
         </Typography>
         <Box
