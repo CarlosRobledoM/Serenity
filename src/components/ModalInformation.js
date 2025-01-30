@@ -40,7 +40,14 @@ export default function BasicModal() {
             <br />
             Recuerda que esta es una versión de prueba y pronto será
             deshabilitada. Mientras tanto, sigue explorando nuestra plataforma y
-            prepárate para lo que viene. ¡Lo mejor está por llegar! ✨💡
+            prepárate para lo que viene. ¡Lo mejor está por llegar! ✨💡{' '}
+            <a
+              href="https://home.serenityapp.co/instrucciones-demo"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Instrucciones.
+            </a>
           </Typography>
           <Button variant="contained" onClick={handleClose}>
             OK

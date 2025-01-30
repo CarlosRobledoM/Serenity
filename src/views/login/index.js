@@ -119,12 +119,16 @@ export default function Login() {
             >
               Registrar
             </Link>
-            {/* <Link
+            <Link
               sx={{ ':hover': { cursor: 'pointer' } }}
-              onClick={() => navigate('/')}
+              onClick={() =>
+                window.open(
+                  'https://home.serenityapp.co/politica-privacidad-de-datos-demo',
+                )
+              }
             >
-              Olvide mi contraseña
-            </Link> */}
+              Politica de privacidad
+            </Link>
           </Box>
         </Box>
       </Box>
