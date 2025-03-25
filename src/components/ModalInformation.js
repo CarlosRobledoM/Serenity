@@ -36,18 +36,17 @@ export default function BasicModal() {
             Oye!
           </Typography>
           <Typography variant="body1" sx={{ my: 2 }}>
-            🚀 ¡Grandes noticias! Pronto lanzaremos Serenity 1.5. 🔥
+            🚨 Aviso importante, esta versión de prueba dejará de funcionar este 28 de marzo, para darle paso a Serenity 1.5. 🔥
             <br />
             <br />
-            Recuerda que esta es una versión de prueba y pronto será
-            deshabilitada. Mientras tanto, sigue explorando nuestra plataforma y
+            Mientras tanto, sigue explorando nuestra plataforma y
             prepárate para lo que viene. ¡Lo mejor está por llegar! ✨💡{' '}
             <a
-              href="https://home.serenityapp.co/instrucciones-demo"
+              href="https://home.serenityapp.co/"
               target="_blank"
               rel="noreferrer"
             >
-              Instrucciones.
+              Ver más.
             </a>
           </Typography>
           <Button variant="contained" onClick={handleClose}>
