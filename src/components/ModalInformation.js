@@ -36,11 +36,12 @@ export default function BasicModal() {
             Oye!
           </Typography>
           <Typography variant="body1" sx={{ my: 2 }}>
-            🚨 Aviso importante, esta versión de prueba dejará de funcionar este 28 de marzo, para darle paso a Serenity 1.5. 🔥
+            🚨 Aviso importante, esta versión de prueba dejará de funcionar este
+            28 de marzo, para darle paso a Serenity 1.5. 🔥
             <br />
             <br />
-            Mientras tanto, sigue explorando nuestra plataforma y
-            prepárate para lo que viene. ¡Lo mejor está por llegar! ✨💡{' '}
+            Mientras tanto, sigue explorando nuestra plataforma y prepárate para
+            lo que viene. ¡Lo mejor está por llegar! ✨💡{' '}
             <a
               href="https://home.serenityapp.co/"
               target="_blank"
