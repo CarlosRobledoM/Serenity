@@ -51,6 +51,7 @@ const LastResume = () => {
           sx={{
             '& > :not(style)': { m: 1 },
             position: 'absolute',
+            backgroundColor: 'white',
             bottom: 16,
             left: 16,
             maxHeight: 150,

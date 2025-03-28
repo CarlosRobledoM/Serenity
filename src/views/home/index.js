@@ -173,7 +173,6 @@ export default function Home() {
                 >
                   Ir ahora
                 </Button>
-                <LastResume />
               </>
             ) : (
               <PreLoader loading={isLoading} completed={isCompleted} />
@@ -181,6 +180,7 @@ export default function Home() {
           </Card>
         </Box>
       </Box>
+      <LastResume />
     </Container>
   );
 }
